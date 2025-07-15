@@ -6,7 +6,7 @@ A JAX module for computing gradients through functionals constrained by equation
 
 `adjointx` provides efficient gradient computation for optimization problems of the form:
 
-$$\min_m J(m) = \ell(u(m), m) + R(m)$$
+$$\min_m J(m) = D(u(m)) + R(m)$$
 
 subject to the constraint:
 
@@ -15,7 +15,7 @@ $$F(u(m), m) = 0$$
 where:
 - $m$ is the control/parameter vector
 - $u(m)$ is the state variable that depends on $m$ through the constraint
-- $\ell(u, m)$ is the data loss term
+- $D(u)$ is the data loss term
 - $R(m)$ is regularization
 - $F(u, m) = 0$ represents the governing equations (PDEs, ODEs, Algebraic, etc.)
 
@@ -32,7 +32,7 @@ Direct differentiation of $J(m)$ with respect to $m$ requires computing $\frac{\
 
 Using the method of Lagrange multipliers, we form the Lagrangian:
 
-$$\mathcal{L}(u, m, p) = \ell(u, m) + R(m) + p^T F(u, m)$$
+$$\mathcal{L}(u, m, p) = D(u) + R(m) + p^T F(u, m)$$
 
 The adjoint method exploits the fact that at the optimum, the constraint is satisfied ($F(u, m) = 0$), so:
 
@@ -40,11 +40,11 @@ $$\frac{dJ}{dm} = \frac{\partial \mathcal{L}}{\partial m}$$
 
 The adjoint variable $p$ must be selected to satisfy the **adjoint equation**:
 
-$$\frac{\partial \mathcal{L}}{\partial u} = 0 \implies \left(\frac{\partial F}{\partial u}\right)^T p = -\frac{\partial \ell}{\partial u}$$
+$$\frac{\partial \mathcal{L}}{\partial u} = 0 \implies \left(\frac{\partial F}{\partial u}\right)^T p = -\frac{\partial D}{\partial u}$$
 
 Once $p$ is computed, the gradient is given by:
 
-$$\frac{dJ}{dm} = \frac{\partial \ell}{\partial m} + \frac{\partial R}{\partial m} + p^T \frac{\partial F}{\partial m}$$
+$$\frac{dJ}{dm} = \frac{\partial R}{\partial m} + p^T \frac{\partial F}{\partial m}$$
 
 ### Computational Advantages
 
@@ -77,8 +77,8 @@ def forward_operator(u, m):
     A = jnp.array([[2.0, 1.0], [1.0, 2.0]])
     return A @ u - m
 
-# Define your objective function ℓ(u, m)
-def objective(u, m):
+# Define your objective function D(u)
+def objective(u):
     """Example: least squares data fitting"""
     u_obs = jnp.array([1.0, 2.0])  # observed data
     return 0.5 * jnp.sum((u - u_obs)**2)
@@ -113,7 +113,7 @@ def ode_residual(u, m, t):
     # Residual for time stepping scheme
     return u[1:] - u[:-1] - dt * dudt[:-1]
 
-def data_fit(u, m):
+def data_fit(u):
     """Fit to observed trajectory"""
     u_obs = jnp.array([...])  # your observed data
     return 0.5 * jnp.sum((u - u_obs)**2)
@@ -132,7 +132,7 @@ def heat_equation_residual(u, m):
     source = m * source_pattern
     return laplacian_u - source
 
-def boundary_objective(u, m):
+def boundary_objective(u):
     """Minimize temperature at specific boundary points"""
     boundary_temps = extract_boundary(u)
     target_temps = jnp.array([...])
@@ -156,7 +156,7 @@ Compute gradients using the adjoint method.
 
 **Parameters:**
 - `forward_op`: Function defining F(u, m) = 0
-- `objective`: Function defining ℓ(u, m)
+- `objective`: Function defining D(u)
 - `regularization`: Function defining R(m)
 - `params`: Current parameter vector m
 

@@ -38,13 +38,9 @@ The adjoint method exploits the fact that at the optimum, the constraint is sati
 
 $$\frac{dJ}{dm} = \frac{\partial \mathcal{L}}{\partial m}$$
 
-The key insight is to choose the adjoint variable $p$ such that:
+The adjoint variable $p$ must be selected to satisfy the **adjoint equation**:
 
-$$\frac{\partial \mathcal{L}}{\partial u} = 0$$
-
-This leads to the **adjoint equation**:
-
-$$\left(\frac{\partial F}{\partial u}\right)^T p = -\frac{\partial \ell}{\partial u}$$
+$$\frac{\partial \mathcal{L}}{\partial u} = 0 \implies \left(\frac{\partial F}{\partial u}\right)^T p = -\frac{\partial \ell}{\partial u}$$
 
 Once $p$ is computed, the gradient is given by:
 

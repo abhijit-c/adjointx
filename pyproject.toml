@@ -1,0 +1,24 @@
+[project]
+name = "adjointx"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "abhijit-c", email = "abhijit9331@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "jax>=0.6.2",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "ipdb>=0.13.13",
+    "ipython>=9.4.0",
+    "jupyterlab>=4.4.4",
+    "pytest>=8.4.1",
+]

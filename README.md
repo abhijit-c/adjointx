@@ -92,20 +92,16 @@ def regularization(m):
 
 # Simple forward solver (you would use a more sophisticated one)
 def simple_solver(forward_op, m):
-    """Solve F(u, m) = 0 using Newton's method"""
-    u = jnp.zeros_like(m)  # initial guess
-    for _ in range(10):
-        residual = forward_op(u, m)
-        jacobian = jax.jacfwd(forward_op, argnums=0)(u, m)
-        u = u - jnp.linalg.solve(jacobian, residual)
-    return u
+    """Solve F(u, m) = 0 for u given m"""
+    A = jnp.array([[2.0, 1.0], [1.0, 2.0]])
+    return jnp.linalg.solve(A,m)
 
 # Construct objective with adjoint-based gradients
 objective = construct_objective(
-    simple_solver,
     forward_operator,
     data_loss,
-    regularization
+    regularization,
+    simple_solver
 )
 
 # Use the objective function and its gradients
@@ -118,7 +114,7 @@ grad_m = jax.grad(objective)(m)  # gradient via adjoint method
 
 ### Core Functions
 
-#### `construct_objective(forward_op, data_loss, regularization, forward_solver = None)`
+#### `construct_objective(forward_op, data_loss, regularization, forward_solver)`
 
 Construct the objective function J(m) = D(u) + R(m).
 

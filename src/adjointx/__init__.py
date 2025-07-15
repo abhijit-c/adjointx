@@ -9,10 +9,10 @@ from typing import Callable, Tuple
 
 
 def construct_objective(
-    forward_solver: Callable[[Callable, jnp.ndarray], jnp.ndarray],
     forward_operator: Callable[[jnp.ndarray, jnp.ndarray], jnp.ndarray],
     data_loss: Callable[[jnp.ndarray], float],
-    regularization: Callable[[jnp.ndarray], float]
+    regularization: Callable[[jnp.ndarray], float],
+    forward_solver: Callable[[Callable, jnp.ndarray], jnp.ndarray]
 ) -> Callable[[jnp.ndarray], float]:
     """
     Construct an objective function J(m) = D(u(m)) + R(m) with adjoint-based gradients.
@@ -21,11 +21,11 @@ def construct_objective(
     by solving the forward problem using the provided forward solver.
 
     Args:
-        forward_solver: Function that takes (forward_operator, m) and returns u(m)
-                       by solving F(u, m) = 0
         forward_operator: Function F(u, m) defining the constraint F(u, m) = 0
         data_loss: Function D(u) computing the data fitting term
         regularization: Function R(m) computing the regularization term
+        forward_solver: Function that takes (forward_operator, m) and returns u(m)
+                       by solving F(u, m) = 0
 
     Returns:
         objective: Function that takes m and returns J(m) with adjoint-based gradients
@@ -112,7 +112,7 @@ def adjoint_gradient(
         raise NotImplementedError("A forward solver must be provided")
 
     # Construct objective with adjoint gradients
-    objective = construct_objective(forward_solver, forward_operator, data_loss, regularization)
+    objective = construct_objective(forward_operator, data_loss, regularization, forward_solver)
 
     # Compute gradient
     return jax.grad(objective)(params)

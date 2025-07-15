@@ -53,10 +53,10 @@ def test_construct_objective_basic_functionality(linear_system_setup):
     forward_operator, data_loss, regularization = linear_system_setup
 
     objective = construct_objective(
-        simple_forward_solver,
         forward_operator,
         data_loss,
-        regularization
+        regularization,
+        simple_forward_solver
     )
 
     assert callable(objective)
@@ -67,10 +67,10 @@ def test_construct_objective_computes_finite_value(linear_system_setup):
     forward_operator, data_loss, regularization = linear_system_setup
 
     objective = construct_objective(
-        simple_forward_solver,
         forward_operator,
         data_loss,
-        regularization
+        regularization,
+        simple_forward_solver
     )
 
     m = jnp.array([3.0, 4.0])
@@ -85,10 +85,10 @@ def test_construct_objective_gradient_works(linear_system_setup):
     forward_operator, data_loss, regularization = linear_system_setup
 
     objective = construct_objective(
-        simple_forward_solver,
         forward_operator,
         data_loss,
-        regularization
+        regularization,
+        simple_forward_solver
     )
 
     m = jnp.array([3.0, 4.0])
@@ -103,10 +103,10 @@ def test_construct_objective_gradient_shape_consistency(linear_system_setup):
     forward_operator, data_loss, regularization = linear_system_setup
 
     objective = construct_objective(
-        simple_forward_solver,
         forward_operator,
         data_loss,
-        regularization
+        regularization,
+        simple_forward_solver
     )
 
     # Test with original 2D parameters
@@ -125,10 +125,10 @@ def test_objective_value_changes_with_parameters(linear_system_setup):
     forward_operator, data_loss, regularization = linear_system_setup
 
     objective = construct_objective(
-        simple_forward_solver,
         forward_operator,
         data_loss,
-        regularization
+        regularization,
+        simple_forward_solver
     )
 
     m1 = jnp.array([1.0, 1.0])
@@ -152,10 +152,10 @@ def test_construct_objective_parametrized(linear_system_setup, m_values):
     forward_operator, data_loss, regularization = linear_system_setup
 
     objective = construct_objective(
-        simple_forward_solver,
         forward_operator,
         data_loss,
-        regularization
+        regularization,
+        simple_forward_solver
     )
 
     # Test objective evaluation

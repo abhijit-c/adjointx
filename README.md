@@ -15,15 +15,14 @@ $$F(u(m), m) = 0$$
 where:
 - $m$ is the control/parameter vector
 - $u(m)$ is the state variable that depends on $m$ through the constraint
-- $\ell(u, m)$ is the data fitting term
-- $R(m)$ is the regularization term
-- $F(u, m) = 0$ represents the governing equations (PDEs, ODEs, etc.)
+- $\ell(u, m)$ is the data loss term
+- $R(m)$ is regularization
+- $F(u, m) = 0$ represents the governing equations (PDEs, ODEs, Algebraic, etc.)
 
 This formulation commonly arises in:
 - **Inverse problems**: Inferring model parameters from observations
 - **Optimal control**: Finding controls that minimize a cost subject to dynamics
 - **PDE-constrained optimization**: Optimization problems governed by differential equations
-- **Machine learning**: Physics-informed neural networks and differentiable programming
 
 ## Mathematical Background
 
@@ -33,23 +32,23 @@ Direct differentiation of $J(m)$ with respect to $m$ requires computing $\frac{\
 
 Using the method of Lagrange multipliers, we form the Lagrangian:
 
-$$\mathcal{L}(u, m, \lambda) = \ell(u, m) + R(m) + \lambda^T F(u, m)$$
+$$\mathcal{L}(u, m, p) = \ell(u, m) + R(m) + p^T F(u, m)$$
 
 The adjoint method exploits the fact that at the optimum, the constraint is satisfied ($F(u, m) = 0$), so:
 
 $$\frac{dJ}{dm} = \frac{\partial \mathcal{L}}{\partial m}$$
 
-The key insight is to choose the adjoint variable $\lambda$ such that:
+The key insight is to choose the adjoint variable $p$ such that:
 
 $$\frac{\partial \mathcal{L}}{\partial u} = 0$$
 
 This leads to the **adjoint equation**:
 
-$$\left(\frac{\partial F}{\partial u}\right)^T \lambda = -\frac{\partial \ell}{\partial u}$$
+$$\left(\frac{\partial F}{\partial u}\right)^T p = -\frac{\partial \ell}{\partial u}$$
 
-Once $\lambda$ is computed, the gradient is given by:
+Once $p$ is computed, the gradient is given by:
 
-$$\frac{dJ}{dm} = \frac{\partial \ell}{\partial m} + \frac{\partial R}{\partial m} + \lambda^T \frac{\partial F}{\partial m}$$
+$$\frac{dJ}{dm} = \frac{\partial \ell}{\partial m} + \frac{\partial R}{\partial m} + p^T \frac{\partial F}{\partial m}$$
 
 ### Computational Advantages
 
@@ -182,14 +181,14 @@ Solve the forward problem F(u, m) = 0 for given parameters.
 
 #### `solve_adjoint_equation(adjoint_op, rhs)`
 
-Solve the adjoint equation (∂F/∂u)ᵀλ = rhs.
+Solve the adjoint equation (∂F/∂u)ᵀp = rhs.
 
 **Parameters:**
 - `adjoint_op`: Adjoint operator (∂F/∂u)ᵀ
 - `rhs`: Right-hand side vector
 
 **Returns:**
-- `adjoint`: Adjoint variable λ
+- `adjoint`: Adjoint variable p
 
 ## Advanced Usage
 

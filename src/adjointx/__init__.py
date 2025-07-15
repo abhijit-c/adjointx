@@ -154,16 +154,10 @@ def solve_adjoint_equation(
     raise NotImplementedError("Adjoint equation solver not yet implemented")
 
 
-def hello() -> str:
-    """Legacy function for testing"""
-    return "Hello from adjointx!"
-
-
 # Export public API
 __all__ = [
     'construct_objective',
     'adjoint_gradient',
     'solve_forward_problem',
     'solve_adjoint_equation',
-    'hello'
 ]

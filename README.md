@@ -103,7 +103,7 @@ def simple_solver(forward_op, m):
 # Construct objective with adjoint-based gradients
 objective = construct_objective(
     simple_solver,
-    forward_operator, 
+    forward_operator,
     data_loss,
     regularization
 )
@@ -131,6 +131,41 @@ Construct the objective function J(m) = D(u) + R(m).
 **Returns:**
 - `objective`: Objective function J(m) who, when differentiated, yields the
   gradient ∇J(m) as computed via adjoint method (using a custom gradient)
+
+## TODO
+
+The following items are planned for future development to improve the library's interface and performance:
+
+### Interface Refactoring
+
+1. **Optimistix Integration for Forward Solvers**
+   - Refactor `construct_objective` to accept forward solvers using the standard [Optimistix](https://github.com/patrick-kidger/optimistix) interface
+   - This will provide access to robust, well-tested solvers for nonlinear equations and optimization problems
+   - Enable users to easily switch between different solver algorithms (Newton, quasi-Newton, etc.)
+
+2. **Lineax Integration for Adjoint Solvers**
+   - Integrate [Lineax](https://github.com/patrick-kidger/lineax) for solving the adjoint equation `(∂F/∂u)ᵀp = -∂D/∂u`
+   - Provide access to various linear solvers (direct, iterative, preconditioned)
+   - Enable efficient handling of large-scale adjoint systems
+
+### Jacobian Computation Optimization
+
+3. **JVP/VJP Usage**
+   - Review and optimize Jacobian computations in `objective_bwd`
+   - Use `jax.jvp` (Jacobian-vector products) and `jax.vjp` (vector-Jacobian products) as appropriate
+   - Ensure memory-efficient computation of `∂F/∂u` and `∂F/∂m` without explicitly forming full Jacobian matrices when possible
+
+4. **Performance Improvements**
+   - Implement efficient checkpointing strategies for memory-limited problems
+   - Add support for matrix-free adjoint solvers
+   - Optimize for large-scale PDE-constrained optimization problems
+
+### API Enhancements
+
+5. **Solver Configuration**
+   - Provide cleaner interfaces for configuring solver tolerances, maximum iterations, and other parameters
+   - Add solver diagnostics and convergence monitoring
+   - Support for warm starting both forward and adjoint solvers
 
 ## Contributing
 

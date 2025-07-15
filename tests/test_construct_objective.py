@@ -16,14 +16,11 @@ def simple_forward_solver(forward_operator, m):
     # Initial guess
     u = jnp.zeros_like(m)
 
-    # Simple Newton iterations
+    # Simple Newton iterations (fixed number for JIT compatibility)
     for _ in range(10):
         residual = solve_system(u)
         jacobian = jax.jacfwd(solve_system)(u)
         u = u - jnp.linalg.solve(jacobian, residual)
-
-        if jnp.linalg.norm(residual) < 1e-10:
-            break
 
     return u
 

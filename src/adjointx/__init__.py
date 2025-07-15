@@ -32,6 +32,7 @@ def construct_objective(
     """
 
     @custom_vjp
+    @jax.jit
     def objective(m: jnp.ndarray) -> float:
         """Compute J(m) = D(u(m)) + R(m)"""
         # Solve forward problem F(u, m) = 0 to get u(m)
@@ -43,6 +44,7 @@ def construct_objective(
 
         return data_term + reg_term
 
+    @jax.jit
     def objective_fwd(m: jnp.ndarray) -> Tuple[float, Tuple[jnp.ndarray, jnp.ndarray]]:
         """Forward pass: compute objective and save state for backward pass"""
         # Solve forward problem
@@ -57,6 +59,7 @@ def construct_objective(
 
         return data_term + reg_term, residuals
 
+    @jax.jit
     def objective_bwd(residuals: Tuple[jnp.ndarray, jnp.ndarray], cotangent: float) -> Tuple[jnp.ndarray]:
         """Backward pass: compute gradient using adjoint method"""
         u, m = residuals
@@ -67,9 +70,8 @@ def construct_objective(
         # Compute ∂R/∂m
         dR_dm = jax.grad(regularization)(m)
 
-        # Compute Jacobians of the forward operator F(u, m)
+        # Compute Jacobian of the forward operator F(u, m) w.r.t. u
         dF_du = jax.jacfwd(forward_operator, argnums=0)(u, m)  # ∂F/∂u
-        dF_dm = jax.jacfwd(forward_operator, argnums=1)(u, m)  # ∂F/∂m
 
         # Solve adjoint equation: (∂F/∂u)^T p = -∂D/∂u
         # This gives us the adjoint variable p
@@ -78,7 +80,11 @@ def construct_objective(
 
         # Compute gradient using adjoint method:
         # dJ/dm = ∂R/∂m + p^T ∂F/∂m
-        dJ_dm = dR_dm + p.T @ dF_dm
+        # Use VJP to compute p^T ∂F/∂m without forming the full Jacobian
+        _, vjp_fn = jax.vjp(lambda m_var: forward_operator(u, m_var), m)
+        p_T_dF_dm = vjp_fn(p)[0]  # This gives us p^T @ (∂F/∂m)
+
+        dJ_dm = dR_dm + p_T_dF_dm
 
         return (cotangent * dJ_dm,)
 
@@ -93,7 +99,7 @@ def adjoint_gradient(
     data_loss: Callable[[jnp.ndarray], float],
     regularization: Callable[[jnp.ndarray], float],
     params: jnp.ndarray,
-    forward_solver: Callable[[Callable, jnp.ndarray], jnp.ndarray] = None
+    forward_solver: Callable[[Callable, jnp.ndarray], jnp.ndarray] | None= None
 ) -> jnp.ndarray:
     """
     Compute gradients using the adjoint method.

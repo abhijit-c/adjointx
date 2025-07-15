@@ -178,8 +178,8 @@ If you use `adjointx` in your research, please cite:
 ```bibtex
 @software{adjointx,
   title={adjointx: Efficient Adjoint Method Implementation in JAX},
-  author={Your Name},
-  year={2024},
+  author={Abhijit Chowdhary},
+  year={2025},
   url={https://github.com/username/adjointx}
 }
 ```

@@ -1,7 +1,7 @@
 [project]
 name = "adjointx"
 version = "0.1.0"
-description = "Add your description here"
+description = "A JAX module to compute gradients through a control using the adjoint method."
 readme = "README.md"
 authors = [{ name = "abhijit-c", email = "abhijit9331@gmail.com" }]
 requires-python = ">=3.13"

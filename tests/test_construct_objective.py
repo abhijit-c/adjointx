@@ -5,6 +5,7 @@ Tests for adjointx package
 import pytest
 import jax.numpy as jnp
 import jax
+import time
 from adjointx import construct_objective
 
 
@@ -208,3 +209,44 @@ def test_solve_adjoint_equation_not_implemented():
 
     with pytest.raises(NotImplementedError, match="Adjoint equation solver not yet implemented"):
         solve_adjoint_equation(dummy_adjoint_op, rhs)
+
+
+def test_jit_compilation_performance_benchmark(linear_system_setup):
+    """Test that JIT compilation provides significant performance improvement"""
+    forward_operator, data_loss, regularization = linear_system_setup
+
+    objective = construct_objective(
+        forward_operator,
+        data_loss,
+        regularization,
+        simple_forward_solver
+    )
+
+    m = jnp.array([3.0, 4.0])
+
+    # First call - triggers compilation
+    start = time.time()
+    J1 = objective(m)
+    grad1 = jax.grad(objective)(m)
+    first_call_time = time.time() - start
+
+    # Second call - should be much faster (already compiled)
+    start = time.time()
+    J2 = objective(m)
+    grad2 = jax.grad(objective)(m)
+    second_call_time = time.time() - start
+
+    # Verify results are consistent
+    assert jnp.allclose(J1, J2)
+    assert jnp.allclose(grad1, grad2)
+
+    # Verify JIT compilation provides speedup
+    # Second call should be at least 5x faster than first call
+    speedup = first_call_time / second_call_time
+    assert speedup >= 5.0, f"Expected speedup >= 5x, got {speedup:.2f}x"
+
+    # Print benchmark results for visibility
+    print(f"\nJIT Compilation Benchmark:")
+    print(f"First call (with compilation): {first_call_time:.4f}s")
+    print(f"Second call (compiled): {second_call_time:.4f}s")
+    print(f"Speedup: {speedup:.1f}x")

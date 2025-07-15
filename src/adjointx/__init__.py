@@ -99,7 +99,7 @@ def adjoint_gradient(
     data_loss: Callable[[jnp.ndarray], float],
     regularization: Callable[[jnp.ndarray], float],
     params: jnp.ndarray,
-    forward_solver: Callable[[Callable, jnp.ndarray], jnp.ndarray] | None= None
+    forward_solver: Callable[[Callable, jnp.ndarray], jnp.ndarray] | None = None
 ) -> jnp.ndarray:
     """
     Compute gradients using the adjoint method.
